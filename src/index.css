@@ -1,13 +1,14 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
-}
+body { margin: 1em 3em; color: #555; }
+table { border-collapse: collapse; }
+tbody { color: black; }
+h1, h2 { color: darkslategray; }
+th, td { border-bottom: 1px solid #ddd; }
+td { line-height: 1.5; font-size: 1.2em; padding: 0 0.8em; }
+th { line-height: 2; padding: 0 0.8em; }
+tr.offline { background: lightpink; }
+#servers { font-family: "Courier New", Courier, monospace; }
+#servers tr:hover { background-color: #eee; }
+#servers td:nth-child(n+2) { text-align: right; }
+thead th:nth-child(n+2) { text-align: right; }
+#servers td:last-child, thead th:last-child { text-align: left; }
+#total-alive-conn { margin-right: 1.5em; }
