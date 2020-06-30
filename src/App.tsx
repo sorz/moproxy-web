@@ -54,19 +54,19 @@ interface Server {
   traffic: Traffic,
 }
 
-type ServerList = [{
+interface ServerWithThroughtput {
   server: Server,
   throughput: Throughput,
-}]
+};
 
-interface ServerStatus {
-  servers: ServerList,
+interface MoproxyStatus {
+  servers: [ServerWithThroughtput],
   uptime: Duration,
   throughput: Throughput,
 }
 
-function useServerStatus() {
-  const [status, setStatus] = useState<ServerStatus>();
+function useMoproxyStatus() {
+  const [status, setStatus] = useState<MoproxyStatus>();
   const [updateAt, setUpdateAt] = useState(Date.now());
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
@@ -105,7 +105,13 @@ function humanDuration(duration: Duration): string {
     .join('');
 }
 
-function numberWithComma(n: number): string {
+function durationToMills(t: Duration | undefined): string | null {
+  if (t == null || t == undefined) return null;
+  let ms = Math.round(t.secs * 1000 + t.nanos / 1e6);
+  return `${numberWithCommas(ms)} ms`;
+}
+
+function numberWithCommas(n: number): string {
   const parts = n.toString().split(".");
   parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   return parts.join(".")
@@ -125,7 +131,14 @@ function humanThroughput(bps: number) {
     + ['bps', 'kbps', 'Mbps', 'Gbps', 'Tbps'][i];
 }
 
-function FullThroughput(props: {bw: Throughput}) {
+function humanQuantity(n: number): string {
+  if (n == 0) return '0';
+  if (n > 1e4) return numberWithCommas(+(n / 1000).toFixed(0)) + 'k';
+  if (n > 1e3) return (n / 1000).toFixed(1) + 'k';
+  return n.toString();
+}
+
+function FullThroughput(props: { bw: Throughput }) {
   return <>
     <span title="upload">↑</span>&nbsp;
     <span className="tx-speed">{humanThroughput(props.bw.tx_bps)}</span>&nbsp;
@@ -134,8 +147,28 @@ function FullThroughput(props: {bw: Throughput}) {
     </>
 }
 
+function ServerRow(props: { server: ServerWithThroughtput }) {
+  const { server, throughput } = props.server;
+  const url = Object.keys(server.proto)[0] + "://" + server.addr;
+  const totalThroughput = throughput.tx_bps + throughput.rx_bps;
+  const columnThouughput = totalThroughput ? humanThroughput(totalThroughput) : "";
+
+  return (
+    <tr>
+      <td><span title={url}>{server.tag}</span></td>
+      <td><span title="based on average delay or custom method">{server.status.score}</span></td>
+      <td><span title="TCP handshake included">{durationToMills(server.status.delay?.Some) || "-"}</span></td>
+      <td><span title="# current connections">{humanQuantity(server.status.conn_alive)}</span> /&nbsp;
+        <span title="# total connections">{humanQuantity(server.status.conn_total)}</span></td>
+      <td><span title="total sent">{humanFileSize(server.traffic.tx_bytes)}</span> /&nbsp;
+        <span title="total received">{humanFileSize(server.traffic.rx_bytes)}</span></td>
+      <td><span title="throughput">{columnThouughput}</span></td>
+    </tr>
+  );
+}
+
 function App() {
-  const { status, isLoading, isError, setUpdateAt } = useServerStatus();
+  const { status, isLoading, isError, setUpdateAt } = useMoproxyStatus();
 
   if (isError) return <p>Error</p>;
   if (isLoading) return <p>Loading…</p>;
@@ -149,22 +182,22 @@ function App() {
       <p>moproxy (TODO: version) is running.&nbsp;
         {humanDuration(status.uptime)}
       </p>
-      <button id="refresh">Refresh</button>
-      <input id="auto-refresh" type="checkbox" checked />
+      <button id="refresh">Refresh</button>&nbsp;
+      <input id="auto-refresh" type="checkbox" checked />&nbsp;
       <label htmlFor="auto-refresh">auto</label>
 
       <h2>Proxy servers</h2>
       <p>
-        Connections: <span id="total-alive-conn">{numberWithComma(totalAliveConns)}</span>&nbsp;
+        Connections: <span id="total-alive-conn">{numberWithCommas(totalAliveConns)}</span>&nbsp;
         Throughput: <FullThroughput bw={status.throughput} />
       </p>
       <table>
         <thead>
-          <tr><th>Server</th><th>Scorer</th><th>Delay</th>
-            <th>CUR / TTLr</th><th>Up / Downr</th><th>⇅r</th></tr>
+          <tr><th>Server</th><th>Score</th><th>Delay</th>
+            <th>CUR / TTL</th><th>Up / Down</th><th>⇅</th></tr>
         </thead>
         <tbody id="servers">
-
+        {status.servers.map(s => <ServerRow server={s} key={s.server.tag} />)}
         </tbody>
       </table>
     </>
