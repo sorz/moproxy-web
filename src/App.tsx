@@ -24,7 +24,7 @@ function FullThroughput(props: { bw: Throughput }) {
     </>
 }
 
-function ServerRow(props: { server: ServerWithThroughtput }) {
+function ServerRow(props: { server: ServerWithThroughtput, showFullTraffic: boolean }) {
   const { server, throughput } = props.server;
   const url = Object.keys(server.proto)[0] + "://" + server.addr;
   const totalThroughput = throughput.tx_bps + throughput.rx_bps;
@@ -33,14 +33,54 @@ function ServerRow(props: { server: ServerWithThroughtput }) {
   return (
     <tr>
       <td><span title={url}>{server.tag}</span></td>
-      <td><span title="based on average delay or custom method">{server.status.score}</span></td>
+      <td><span title="based on average delay or custom method">{server.status.score || "-"}</span></td>
       <td><span title="TCP handshake included">{format.durationToMills(server.status.delay?.Some) || "-"}</span></td>
       <td><span title="# current connections">{format.humanQuantity(server.status.conn_alive)}</span> /&nbsp;
         <span title="# total connections">{format.humanQuantity(server.status.conn_total)}</span></td>
-      <td><span title="total sent">{format.humanFileSize(server.traffic.tx_bytes)}</span> /&nbsp;
-        <span title="total received">{format.humanFileSize(server.traffic.rx_bytes)}</span></td>
+      <td>
+        { props.showFullTraffic ? <>
+            <span title="total sent">{format.humanFileSize(server.traffic.tx_bytes)}</span> /&nbsp;
+            <span title="total received">{format.humanFileSize(server.traffic.rx_bytes)}</span>
+          </> : <>
+            <span title="total traffic">{format.humanFileSize(server.traffic.tx_bytes + server.traffic.rx_bytes)}</span>
+          </>
+        }
+      </td>
       <td><span title="throughput">{columnThouughput}</span></td>
     </tr>
+  );
+}
+
+function TrafficSwitch(props: { full: boolean, onChange: (full: boolean) => void }) {
+
+
+  return (
+    <button onClick={() => props.onChange(!props.full)}>
+      {props.full ? "Up / Down" : "Traffic"}
+    </button>
+  )
+}
+
+function ServerTable(props: { servers: [ServerWithThroughtput] }) {
+  const [showFullTraffic, setShowFullTraffic] = useState(true);
+
+  return (
+    <table>
+      <thead>
+        <tr>
+          <th>Server</th>
+          <th>Score</th>
+          <th>Delay</th>
+          <th>CUR / TTL</th>
+          <th><TrafficSwitch full={showFullTraffic} onChange={full => setShowFullTraffic(full)} /></th>
+          <th>⇅</th>
+        </tr>
+      </thead>
+      <tbody id="servers">
+        {props.servers.map(s => <ServerRow server={s} key={s.server.tag}
+            showFullTraffic={showFullTraffic} />)}
+      </tbody>
+    </table>
   );
 }
 
@@ -95,15 +135,7 @@ function App() {
           {status && format.numberWithCommas(totalAliveConns)}</span>&nbsp;
         Throughput: {status && <FullThroughput bw={status.throughput} />}
       </p>
-      <table>
-        <thead>
-          <tr><th>Server</th><th>Score</th><th>Delay</th>
-            <th>CUR / TTL</th><th>Up / Down</th><th>⇅</th></tr>
-        </thead>
-        <tbody id="servers">
-        {status && status.servers.map(s => <ServerRow server={s} key={s.server.tag} />)}
-        </tbody>
-      </table>
+      {status?.servers && <ServerTable servers={status?.servers} />}
     </>
   );
 }

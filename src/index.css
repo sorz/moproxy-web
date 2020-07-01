@@ -12,3 +12,6 @@ tr.offline { background: lightpink; }
 thead th:nth-child(n+2) { text-align: right; }
 #servers td:last-child, thead th:last-child { text-align: left; }
 #total-alive-conn { margin-right: 1.5em; }
+th > button { background: none; border: none; padding: inherit; font-family: inherit;
+  color: inherit; font-size: inherit; font-weight: inherit; cursor: pointer; }
+th > button:hover { text-decoration: underline; }
