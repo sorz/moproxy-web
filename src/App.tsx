@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Throughput, ServerWithThroughtput, useMoproxyStatus, useMoproxyVersion } from './backend';
 import * as format from './formatUtils';
+import { ServerResponse } from 'http';
+import deepEqual from "deep-equal";
 
 
 function useDocumentVisibility() {
@@ -68,6 +70,11 @@ function TrafficSwitch(props: { full: boolean, onChange: (full: boolean) => void
 function ServerTable(props: { servers: [ServerWithThroughtput] }) {
   const [showFullTraffic, setShowFullTraffic] = useState(true);
   const [selectedServer, setSelectedServer] = useState<ServerWithThroughtput>();
+
+  if (selectedServer) {
+    const updated = props.servers.find((s) => s.server.tag == selectedServer.server.tag);
+    if (updated && !deepEqual(selectedServer, updated)) setSelectedServer(updated);
+  }
 
   return (
     <table>
