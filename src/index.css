@@ -37,3 +37,22 @@ h3.server-tag {
 h3.server-tag > .server-url {
   font-weight: normal;
 }
+
+.close-history {
+  list-style: none;
+}
+
+.close-history > li {
+  width: 4px;
+  height: 1em;
+  display: inline flow-root;
+  border: solid 1px white;
+}
+
+li.close-ok {
+  background: green;
+}
+
+li.close-err {
+  background: red;
+}

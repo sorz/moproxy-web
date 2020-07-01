@@ -112,6 +112,21 @@ function Modal(props: { onDismiss: () => void, children: React.ReactNode }) {
   );
 }
 
+function ConnectionCloseHistory(props: { history: number, size: number }) {
+  return (
+    <ul className="close-history">
+      {Array.from({ length: props.size }, (_, i) => {
+        const ok = ((props.history >> i) & 0x01) === 0;
+        return (
+          <li key={i}
+            className={ok ? "close-ok" : "close-err"}
+            title={ok ? "closed normally" : "closed with error"}></li>
+        )
+      })}
+    </ul>
+  );
+}
+
 function ServerDetail(props: { onDismiss: () => void, item: ServerWithThroughtput }) {
   const { server, throughput } = props.item;
   return (
@@ -119,6 +134,12 @@ function ServerDetail(props: { onDismiss: () => void, item: ServerWithThroughtpu
       <h3 className="server-tag">{server.tag}<br />
         <small className="server-url">{format.proxyUrl(server)}</small>
       </h3>
+
+      <p>
+        <ConnectionCloseHistory
+          history={server.status.close_history}
+          size={Math.min(64, server.status.conn_total - server.status.conn_alive)} />
+      </p>
     </Modal>
   )
 }
