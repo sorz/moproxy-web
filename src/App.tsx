@@ -2,6 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { Throughput, ServerWithThroughtput, useMoproxyStatus, useMoproxyVersion } from './backend';
 import * as format from './formatUtils';
 
+
+function useDocumentVisibility() {
+  const [hidden, setHidden] = useState(document.hidden);
+  const onVisibilityChange = () => setHidden(document.hidden);
+
+  useEffect(() => {
+    document.addEventListener('visibilitychange', onVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', onVisibilityChange);
+  }, []);
+
+  return hidden;
+}
+
 function FullThroughput(props: { bw: Throughput }) {
   return <>
     <span title="upload">↑</span>&nbsp;
@@ -35,11 +48,13 @@ function Interval(props: { millis: number, onTick: () => void }) {
   useEffect(() => {
     const id = setInterval(props.onTick, props.millis);
     return () => clearInterval(id);
-  });
+  }, [props.millis]);
   return <></>;
 }
+
 function RefreshControl(props: { isLoading: boolean, onRefresh: () => void }) {
   const [autoRefresh, setAutoRefresh] = useState(true);
+  const hidden = useDocumentVisibility();
 
   function autoRefreshOnChange(event: React.ChangeEvent<HTMLInputElement>) {
     setAutoRefresh(event.target.checked)
@@ -50,7 +65,7 @@ function RefreshControl(props: { isLoading: boolean, onRefresh: () => void }) {
       <button id="refresh" disabled={props.isLoading} onClick={props.onRefresh}>Refresh</button>&nbsp;
       <input id="auto-refresh" type="checkbox" checked={autoRefresh} onChange={autoRefreshOnChange} />&nbsp;
       <label htmlFor="auto-refresh">auto</label>
-      {autoRefresh && <Interval millis={1000} onTick={props.onRefresh} />}
+      {autoRefresh && !hidden && <Interval millis={1000} onTick={props.onRefresh} />}
     </>
   );
 }
