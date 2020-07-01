@@ -67,6 +67,7 @@ interface MoproxyStatus {
 }
 
 export function useMoproxyStatus() {
+  const uri = process.env.REACT_APP_STATUS_URI || 'status';
   const [status, setStatus] = useState<MoproxyStatus>();
   const [updateAt, setUpdateAt] = useState(Date.now());
   const [isLoading, setIsLoading] = useState(false);
@@ -76,9 +77,8 @@ export function useMoproxyStatus() {
     const fetchStatus = async () => {
       setIsError(false);
       setIsLoading(true);
-
       try {
-        const resp = await fetch(process.env.REACT_APP_STATUS_URI || 'notfound');
+        const resp = await fetch(uri);
         setStatus(await resp.json());
       } catch (err) {
         setIsError(err);
@@ -86,9 +86,26 @@ export function useMoproxyStatus() {
         setIsLoading(false);
       }
     };
-
     fetchStatus();
   }, [updateAt]);
 
-  return { status, isLoading, isError, setUpdateAt};
+  return { status, isLoading, isError, setUpdateAt };
+}
+
+export function useMoproxyVersion() {
+  const uri = process.env.REACT_APP_VERSION_URI || 'version';
+  const [version, setVersion] = useState<string>();
+  useEffect(() => {
+    const fetchStatus = async () => {
+      try {
+        const resp = await fetch(uri);
+        setVersion(await resp.text());
+      } catch (err) {
+        console.warn("fail to fetch moproxy version", err);
+        setVersion(undefined);
+      }
+    };
+    fetchStatus();
+  }, []);
+  return version;
 }

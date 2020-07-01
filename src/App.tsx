@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Throughput, ServerWithThroughtput, useMoproxyStatus } from './backend';
+import React, { useState, useEffect } from 'react';
+import { Throughput, ServerWithThroughtput, useMoproxyStatus, useMoproxyVersion } from './backend';
 import * as format from './formatUtils';
 
 function FullThroughput(props: { bw: Throughput }) {
@@ -31,29 +31,54 @@ function ServerRow(props: { server: ServerWithThroughtput }) {
   );
 }
 
+function Interval(props: { millis: number, onTick: () => void }) {
+  useEffect(() => {
+    const id = setInterval(props.onTick, props.millis);
+    return () => clearInterval(id);
+  });
+  return <></>;
+}
+function RefreshControl(props: { isLoading: boolean, onRefresh: () => void }) {
+  const [autoRefresh, setAutoRefresh] = useState(true);
+
+  function autoRefreshOnChange(event: React.ChangeEvent<HTMLInputElement>) {
+    setAutoRefresh(event.target.checked)
+  }
+
+  return (
+    <>
+      <button id="refresh" disabled={props.isLoading} onClick={props.onRefresh}>Refresh</button>&nbsp;
+      <input id="auto-refresh" type="checkbox" checked={autoRefresh} onChange={autoRefreshOnChange} />&nbsp;
+      <label htmlFor="auto-refresh">auto</label>
+      {autoRefresh && <Interval millis={1000} onTick={props.onRefresh} />}
+    </>
+  );
+}
+
 function App() {
+  const version = useMoproxyVersion();
   const { status, isLoading, isError, setUpdateAt } = useMoproxyStatus();
 
-  if (isError) return <p>Error</p>;
-  if (isLoading) return <p>Loading…</p>;
-  if (status == null) return <></>;
+  const totalAliveConns = status == null ? 0 :
+    status.servers.reduce((c, s) => c + s.server.status.conn_alive, 0);
 
-  const totalAliveConns = status.servers.reduce((c, s) => c + s.server.status.conn_alive, 0);
+  function refresh() {
+    setUpdateAt(Date.now());
+  }
   
   return (
     <>
       <h1>moproxy</h1>
-      <p>moproxy (TODO: version) is running.&nbsp;
-        {format.humanDuration(status.uptime)}
+      <p>moproxy {version && `(${version})`} is running.&nbsp;
+        {status?.uptime && format.humanDuration(status.uptime)}.&nbsp;
+        {isError && <span title="error on refresh status">[offline]</span> }
       </p>
-      <button id="refresh">Refresh</button>&nbsp;
-      <input id="auto-refresh" type="checkbox" checked />&nbsp;
-      <label htmlFor="auto-refresh">auto</label>
-
+      <RefreshControl isLoading={isLoading} onRefresh={refresh} />
       <h2>Proxy servers</h2>
       <p>
-        Connections: <span id="total-alive-conn">{format.numberWithCommas(totalAliveConns)}</span>&nbsp;
-        Throughput: <FullThroughput bw={status.throughput} />
+        Connections: <span id="total-alive-conn">
+          {status && format.numberWithCommas(totalAliveConns)}</span>&nbsp;
+        Throughput: {status && <FullThroughput bw={status.throughput} />}
       </p>
       <table>
         <thead>
@@ -61,7 +86,7 @@ function App() {
             <th>CUR / TTL</th><th>Up / Down</th><th>⇅</th></tr>
         </thead>
         <tbody id="servers">
-        {status.servers.map(s => <ServerRow server={s} key={s.server.tag} />)}
+        {status && status.servers.map(s => <ServerRow server={s} key={s.server.tag} />)}
         </tbody>
       </table>
     </>
