@@ -12,6 +12,28 @@ tr.offline { background: lightpink; }
 thead th:nth-child(n+2) { text-align: right; }
 #servers td:last-child, thead th:last-child { text-align: left; }
 #total-alive-conn { margin-right: 1.5em; }
-th > button { background: none; border: none; padding: inherit; font-family: inherit;
+th > button, td > button { background: none; border: none; padding: inherit; font-family: inherit;
   color: inherit; font-size: inherit; font-weight: inherit; cursor: pointer; }
-th > button:hover { text-decoration: underline; }
+th > button:hover, td > button:hover { text-decoration: underline; }
+
+div.modal {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 2rem 1rem;
+}
+
+.modal .modal-dialog {
+  max-width: 500px;
+  margin: 1rem auto;
+  background: white;
+  border: 1px solid lightgray;
+  border-radius: 0.2rem;
+  padding: 1rem 1.5rem;
+}
+
+h3.server-tag {
+  font-family: "Courier New", Courier, monospace;
+}
+h3.server-tag > .server-url {
+  font-weight: normal;
+}

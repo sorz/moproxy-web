@@ -1,4 +1,4 @@
-import { Duration } from './backend';
+import { Duration, Server } from './backend';
 
 
 export function humanDuration(duration: Duration): string {
@@ -45,4 +45,8 @@ export function humanQuantity(n: number): string {
   if (n > 1e4) return numberWithCommas(+(n / 1000).toFixed(0)) + 'k';
   if (n > 1e3) return (n / 1000).toFixed(1) + 'k';
   return n.toString();
+}
+
+export function proxyUrl(server: Server) {
+  return Object.keys(server.proto)[0] + "://" + server.addr;
 }

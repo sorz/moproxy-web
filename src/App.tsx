@@ -24,15 +24,21 @@ function FullThroughput(props: { bw: Throughput }) {
     </>
 }
 
-function ServerRow(props: { server: ServerWithThroughtput, showFullTraffic: boolean }) {
+type ServerRowProps = {
+  server: ServerWithThroughtput,
+  onClick: (item: ServerWithThroughtput) => void,
+  showFullTraffic: boolean,
+}
+
+function ServerRow(props: ServerRowProps) {
   const { server, throughput } = props.server;
-  const url = Object.keys(server.proto)[0] + "://" + server.addr;
+  const url = format.proxyUrl(server);
   const totalThroughput = throughput.tx_bps + throughput.rx_bps;
   const columnThouughput = totalThroughput ? format.humanThroughput(totalThroughput) : "";
 
   return (
     <tr>
-      <td><span title={url}>{server.tag}</span></td>
+      <td><button title={url} onClick={() => props.onClick(props.server)}>{server.tag}</button></td>
       <td><span title="based on average delay or custom method">{server.status.score || "-"}</span></td>
       <td><span title="TCP handshake included">{format.durationToMills(server.status.delay?.Some) || "-"}</span></td>
       <td><span title="# current connections">{format.humanQuantity(server.status.conn_alive)}</span> /&nbsp;
@@ -52,8 +58,6 @@ function ServerRow(props: { server: ServerWithThroughtput, showFullTraffic: bool
 }
 
 function TrafficSwitch(props: { full: boolean, onChange: (full: boolean) => void }) {
-
-
   return (
     <button onClick={() => props.onChange(!props.full)}>
       {props.full ? "Up / Down" : "Traffic"}
@@ -63,6 +67,7 @@ function TrafficSwitch(props: { full: boolean, onChange: (full: boolean) => void
 
 function ServerTable(props: { servers: [ServerWithThroughtput] }) {
   const [showFullTraffic, setShowFullTraffic] = useState(true);
+  const [selectedServer, setSelectedServer] = useState<ServerWithThroughtput>();
 
   return (
     <table>
@@ -77,9 +82,14 @@ function ServerTable(props: { servers: [ServerWithThroughtput] }) {
         </tr>
       </thead>
       <tbody id="servers">
-        {props.servers.map(s => <ServerRow server={s} key={s.server.tag}
-            showFullTraffic={showFullTraffic} />)}
+        {props.servers.map(s =>
+          <ServerRow
+            server={s} key={s.server.tag} showFullTraffic={showFullTraffic} onClick={setSelectedServer}
+          />
+        )}
       </tbody>
+      {selectedServer &&
+        <ServerDetail item={selectedServer} onDismiss={() => setSelectedServer(undefined)} />}
     </table>
   );
 }
@@ -90,6 +100,27 @@ function Interval(props: { millis: number, onTick: () => void }) {
     return () => clearInterval(id);
   }, [props.millis]);
   return <></>;
+}
+
+function Modal(props: { onDismiss: () => void, children: React.ReactNode }) {
+  return (
+    <div className="modal" role="dialog" onClick={props.onDismiss}>
+      <div className="modal-dialog" onClick={e => e.stopPropagation()}>
+        {props.children}
+      </div>
+    </div>
+  );
+}
+
+function ServerDetail(props: { onDismiss: () => void, item: ServerWithThroughtput }) {
+  const { server, throughput } = props.item;
+  return (
+    <Modal onDismiss={props.onDismiss}>
+      <h3 className="server-tag">{server.tag}<br />
+        <small className="server-url">{format.proxyUrl(server)}</small>
+      </h3>
+    </Modal>
+  )
 }
 
 function RefreshControl(props: { isLoading: boolean, onRefresh: () => void }) {

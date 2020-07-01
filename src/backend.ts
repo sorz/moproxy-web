@@ -46,7 +46,7 @@ interface ServerStatus {
   close_history: number,
 }
 
-interface Server {
+export interface Server {
   addr: string,
   proto: SocksV5Proto | HttpProto,
   tag: string,
