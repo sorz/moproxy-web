@@ -177,13 +177,15 @@ function ServerDetail(props: { onDismiss: () => void, item: ServerWithThroughtpu
         </p>
         <hr/>
         <p className="score-and-delay">
-          <span>Delay / Score:</span>
+          <span>Delay / score:</span>
           <span className="current-delay">{format.durationToMills(server.status.delay?.Some) || "-"}</span>
           <span className="split">/</span>
           <span>{format.numberWithCommas(server.status.score)}</span>
           <span className="base-score" title="Base score">
             ({format.numberWithCommas(server.config.score_base, true)})</span>
-      
+        </p>
+        <p>
+          <span>Thoughput:</span><FullThroughput bw={throughput}/>
         </p>
         <p>
           <span>Connections:</span>
@@ -196,6 +198,14 @@ function ServerDetail(props: { onDismiss: () => void, item: ServerWithThroughtpu
         <p className="close-history">
           <span>Close history:</span>
           <ConnectionCloseHistory history={history} size={history_size} />
+        </p>
+        <p>
+          <span>Traffic:</span>
+          Up {format.humanFileSize(server.traffic.tx_bytes)}
+          <span className="split">+</span>
+          Dn {format.humanFileSize(server.traffic.rx_bytes)}
+          <span className="split">=</span>
+          {format.humanFileSize(server.traffic.rx_bytes + server.traffic.tx_bytes)}
         </p>
       </div>
     </Modal>
