@@ -109,10 +109,19 @@ function Interval(props: { millis: number, onTick: () => void }) {
 }
 
 function Modal(props: { onDismiss: () => void, children: React.ReactNode }) {
+  const escKeyCallback = (event: KeyboardEvent) => event.keyCode === 27 && props.onDismiss();
+  useEffect(() => {
+    document.addEventListener("keydown", escKeyCallback);
+    return () => {
+      document.removeEventListener("keydown", escKeyCallback);
+    }
+  })
+
   return (
     <div className="modal" role="dialog" onClick={props.onDismiss}>
       <div className="modal-dialog" onClick={e => e.stopPropagation()}>
         {props.children}
+        <button className="action-close" onClick={props.onDismiss} autoFocus>CLOSE</button>
       </div>
     </div>
   );

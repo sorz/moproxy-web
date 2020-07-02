@@ -29,6 +29,21 @@ div.modal {
   border: 1px solid lightgray;
   border-radius: 0.2rem;
   padding: 1rem 1.5rem;
+  display: flow-root;
+}
+.modal-dialog .action-close {
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
+  color: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  cursor: pointer;
+  float: right;
+}
+.modal-dialog .action-close:hover {
+  text-decoration: underline;
 }
 
 h3.server-tag { font-family: "Courier New", Courier, monospace; }
