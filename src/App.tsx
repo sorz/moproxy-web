@@ -9,6 +9,7 @@ function useDocumentEventListener<K extends keyof DocumentEventMap>(
   useEffect(() => {
     document.addEventListener(event, callback);
     return () => document.removeEventListener(event, callback);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 }
 
@@ -74,7 +75,7 @@ function ServerTable(props: { servers: [ServerWithThroughtput] }) {
   const refSelectedServerTag = useRef<string>();
   const refServerTags = useRef<string[]>();
 
-  const findServerByTag = (tag: string) => props.servers.find((s) => s.server.tag == tag);
+  const findServerByTag = (tag: string) => props.servers.find((s) => s.server.tag === tag);
 
   if (selectedServer) {
     refSelectedServerTag.current = selectedServer.server.tag;
@@ -86,10 +87,10 @@ function ServerTable(props: { servers: [ServerWithThroughtput] }) {
   // Keyboard shortcut
   useDocumentEventListener('keydown', e => {
     if (!refSelectedServerTag.current || !refServerTags.current) return;
-    if (e.key != 'ArrowLeft' && e.key != 'ArrowRight') return;
-    const origIdx = refServerTags.current.findIndex(tag => tag == refSelectedServerTag.current);
-    if (origIdx == -1) return;
-    const newIdx = origIdx + (e.key == 'ArrowLeft' ? -1 : 1)
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    const origIdx = refServerTags.current.findIndex(tag => tag === refSelectedServerTag.current);
+    if (origIdx === -1) return;
+    const newIdx = origIdx + (e.key === 'ArrowLeft' ? -1 : 1)
     if (newIdx < 0 || newIdx >= props.servers.length) return;
     pushSelectedServer(props.servers[newIdx]);
     e.stopPropagation();
@@ -97,18 +98,12 @@ function ServerTable(props: { servers: [ServerWithThroughtput] }) {
 
   // History management
   function pushSelectedServer(server: ServerWithThroughtput | undefined) {
-    if (server == undefined) {
+    if (server === undefined) {
       window.history.pushState("", "", "/");
     } else {
       const tag = server.server.tag;
       window.history.pushState(tag, "", `#${tag}`);
     }
-    setSelectedServer(server);
-  }
-
-  function onPopStateCallback(event: PopStateEvent) {
-    const tag = event.state as string;
-    const server = findServerByTag(tag);
     setSelectedServer(server);
   }
 
@@ -118,11 +113,16 @@ function ServerTable(props: { servers: [ServerWithThroughtput] }) {
   }
 
   useEffect(() => {
+    function onPopStateCallback(event: PopStateEvent) {
+      const tag = event.state as string;
+      const server = findServerByTag(tag);
+      setSelectedServer(server);
+    }
     window.addEventListener('popstate', onPopStateCallback);
     return () => window.removeEventListener('popstate', onPopStateCallback);
   }, []);
 
-  return (
+  return (<>
     <table>
       <thead>
         <tr>
@@ -141,10 +141,10 @@ function ServerTable(props: { servers: [ServerWithThroughtput] }) {
           />
         )}
       </tbody>
-      {selectedServer &&
-        <ServerDetail item={selectedServer} onDismiss={() => pushSelectedServer(undefined)} />}
     </table>
-  );
+    {selectedServer &&
+      <ServerDetail item={selectedServer} onDismiss={() => pushSelectedServer(undefined)} />}
+  </>);
 }
 
 function Interval(props: { millis: number, onTick: () => void }) {
@@ -208,53 +208,53 @@ function ServerDetail(props: { onDismiss: () => void, item: ServerWithThroughtpu
         <small className="server-url">{format.proxyUrl(server)}</small>
       </h3>
       <div className="server-details">
-        <p className="listen-ports">
+        <div className="listen-ports">
           <span>Listen ports:</span>
           TCP
           <ul>{server.config.listen_ports.map(port => (
-            <li>&#8203;{port}</li>
+            <li key={port}>&#8203;{port}</li>
           ))}</ul>
-        </p>
-        <p>
+        </div>
+        <div>
           <span>Max wait:</span>
           <span>{format.humanDuration(server.config.max_wait)}</span>
-        </p>
-        <p>
+        </div>
+        <div>
           <span>Test target:</span>
           <span>dns+tcp://{server.config.test_dns}</span>
-        </p>
+        </div>
         <hr/>
-        <p className="score-and-delay">
+        <div className="score-and-delay">
           <span>Delay / score:</span>
           <span className="current-delay">{format.durationToMills(server.status.delay?.Some) || "-"}</span>
           <span className="split">/</span>
           <span>{server.status.score ? format.numberWithCommas(server.status.score) : "-"}</span>
           <span className="base-score" title="Base score">
             ({format.numberWithCommas(server.config.score_base, true)})</span>
-        </p>
-        <p>
+        </div>
+        <div>
           <span>Thoughput:</span><FullThroughput bw={throughput}/>
-        </p>
-        <p>
+        </div>
+        <div>
           <span>Connections:</span>
           {server.status.conn_alive} alive
           <span className="split">/</span>
           {server.status.conn_error} error
           <span className="split">/</span>
           {server.status.conn_total} total
-        </p>
-        <p className="close-history">
+        </div>
+        <div className="close-history">
           <span>Close history:</span>
           <ConnectionCloseHistory history={history} size={history_size} />
-        </p>
-        <p>
+        </div>
+        <div>
           <span>Traffic:</span>
           Up {format.humanFileSize(server.traffic.tx_bytes)}
           <span className="split">+</span>
           Dn {format.humanFileSize(server.traffic.rx_bytes)}
           <span className="split">=</span>
           {format.humanFileSize(server.traffic.rx_bytes + server.traffic.tx_bytes)}
-        </p>
+        </div>
       </div>
     </Modal>
   )

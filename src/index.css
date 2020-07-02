@@ -49,12 +49,12 @@ div.modal {
 h3.server-tag { font-family: "Courier New", Courier, monospace; }
 h3.server-tag > .server-url { font-weight: normal; }
 
-.server-details > p { margin: 0.5rem 0; }
-.server-details > p > span:first-child {
+.server-details > div { margin: 0.5rem 0; }
+.server-details > div > span:first-child {
   display: inline-block;
   min-width: 6.5em;
 }
-.server-details > p > span.split { margin: 0 0.5em; }
+.server-details > div > span.split { margin: 0 0.5em; }
 .server-details > hr { opacity: 0.5; margin: 1rem 0; }
 
 .listen-ports > ul {

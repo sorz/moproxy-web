@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
 
 type Option<T> = null | { Some: T };
@@ -88,6 +88,7 @@ export function useMoproxyStatus() {
       }
     };
     fetchStatus();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [updateAt]);
 
   return { status, isLoading, isError, setUpdateAt };
