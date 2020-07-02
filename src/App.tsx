@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Throughput, ServerWithThroughtput, useMoproxyStatus, useMoproxyVersion } from './backend';
 import * as format from './formatUtils';
-import { ServerResponse } from 'http';
 import deepEqual from "deep-equal";
 
 
@@ -119,23 +118,43 @@ function Modal(props: { onDismiss: () => void, children: React.ReactNode }) {
   );
 }
 
-function ConnectionCloseHistory(props: { history: number, size: number }) {
+function bitCount(n: bigint) {
+  // Hamming weight
+  n = n - ((n >> 1n) & 0x5555555555555555n);
+  n = (n & 0x3333333333333333n) + ((n >> 2n) & 0x3333333333333333n);
+  n = ((n + (n >> 4n) & 0xF0F0F0F0F0F0F0Fn) * 0x101010101010101n) >> 56n;
+  return BigInt.asUintN(8, n);
+}
+
+function ConnectionCloseHistory(props: { history: bigint, size: number }) {
+  const errCount = bitCount(props.history);
+  console.log('errCount', errCount);
   return (
-    <ul className="close-history">
-      {Array.from({ length: props.size }, (_, i) => {
-        const ok = ((props.history >> i) & 0x01) === 0;
-        return (
-          <li key={i}
-            className={ok ? "close-ok" : "close-err"}
-            title={ok ? "closed normally" : "closed with error"}></li>
-        )
-      })}
-    </ul>
+    <div className="close-history">
+      <span>Close history:</span>
+      <ul className="close-history-diagram" >
+        {Array.from({ length: props.size }, (_, i) => {
+          const ok = ((props.history >> BigInt(i)) & 0x01n) === 0n;
+          return (
+            <li key={i}
+              className={ok ? "close-ok" : "close-err"}
+              title={ok ? "closed normally" : "closed with error"}></li>
+          )
+        })}
+      </ul>
+      <span className="close-history-summary"
+          title={`${errCount.toString()} error(s) in the lastest ${props.size} closed connection(s)`}>
+        {errCount.toString()}
+        <span>/{props.size}</span>
+      </span>
+    </div>
   );
 }
 
 function ServerDetail(props: { onDismiss: () => void, item: ServerWithThroughtput }) {
   const { server, throughput } = props.item;
+  const history = BigInt(server.status.close_history);
+  const history_size = Math.min(64, server.status.conn_total - server.status.conn_alive);
   return (
     <Modal onDismiss={props.onDismiss}>
       <h3 className="server-tag">{server.tag}<br />
@@ -143,9 +162,7 @@ function ServerDetail(props: { onDismiss: () => void, item: ServerWithThroughtpu
       </h3>
 
       <p>
-        <ConnectionCloseHistory
-          history={server.status.close_history}
-          size={Math.min(64, server.status.conn_total - server.status.conn_alive)} />
+        <ConnectionCloseHistory history={history} size={history_size} />
       </p>
     </Modal>
   )

@@ -38,21 +38,19 @@ h3.server-tag > .server-url {
   font-weight: normal;
 }
 
-.close-history {
+.close-history-diagram {
   list-style: none;
+  display: inline;
+  padding: 0 0.5em;
+  margin: 0;
 }
-
-.close-history > li {
+.close-history-diagram > li {
   width: 4px;
   height: 1em;
-  display: inline flow-root;
+  display: inline-block;
   border: solid 1px white;
+  vertical-align: bottom;
 }
-
-li.close-ok {
-  background: green;
-}
-
-li.close-err {
-  background: red;
-}
+.close-history-diagram > li.close-ok { background: green; }
+.close-history-diagram > li.close-err { background: red; }
+.close-history-summary > span:last-child { font-size: 0.6em; }
