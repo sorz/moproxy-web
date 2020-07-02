@@ -20,10 +20,11 @@ export function durationToMills(t: Duration | undefined): string | null {
   return `${numberWithCommas(ms)} ms`;
 }
 
-export function numberWithCommas(n: number): string {
+export function numberWithCommas(n: number, alwaysWithSign: boolean = false): string {
   const parts = n.toString().split(".");
   parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  return parts.join(".")
+  const result = parts.join(".")
+  return (n >= 0 && alwaysWithSign) ? "+" + result : result;
 }
 
 export function humanFileSize(bytes: number): string {

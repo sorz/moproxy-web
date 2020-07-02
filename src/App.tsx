@@ -130,8 +130,7 @@ function ConnectionCloseHistory(props: { history: bigint, size: number }) {
   const errCount = bitCount(props.history);
   console.log('errCount', errCount);
   return (
-    <div className="close-history">
-      <span>Close history:</span>
+    <div>
       <ul className="close-history-diagram" >
         {Array.from({ length: props.size }, (_, i) => {
           const ok = ((props.history >> BigInt(i)) & 0x01n) === 0n;
@@ -160,10 +159,45 @@ function ServerDetail(props: { onDismiss: () => void, item: ServerWithThroughtpu
       <h3 className="server-tag">{server.tag}<br />
         <small className="server-url">{format.proxyUrl(server)}</small>
       </h3>
-
-      <p>
-        <ConnectionCloseHistory history={history} size={history_size} />
-      </p>
+      <div className="server-details">
+        <p className="listen-ports">
+          <span>Listen ports:</span>
+          TCP
+          <ul>{server.config.listen_ports.map(port => (
+            <li>&#8203;{port}</li>
+          ))}</ul>
+        </p>
+        <p>
+          <span>Max wait:</span>
+          <span>{format.humanDuration(server.config.max_wait)}</span>
+        </p>
+        <p>
+          <span>Test target:</span>
+          <span>dns+tcp://{server.config.test_dns}</span>
+        </p>
+        <hr/>
+        <p className="score-and-delay">
+          <span>Delay / Score:</span>
+          <span className="current-delay">{format.durationToMills(server.status.delay?.Some) || "-"}</span>
+          <span className="split">/</span>
+          <span>{format.numberWithCommas(server.status.score)}</span>
+          <span className="base-score" title="Base score">
+            ({format.numberWithCommas(server.config.score_base, true)})</span>
+      
+        </p>
+        <p>
+          <span>Connections:</span>
+          {server.status.conn_alive} alive
+          <span className="split">/</span>
+          {server.status.conn_error} error
+          <span className="split">/</span>
+          {server.status.conn_total} total
+        </p>
+        <p className="close-history">
+          <span>Close history:</span>
+          <ConnectionCloseHistory history={history} size={history_size} />
+        </p>
+      </div>
     </Modal>
   )
 }

@@ -31,17 +31,39 @@ div.modal {
   padding: 1rem 1.5rem;
 }
 
-h3.server-tag {
-  font-family: "Courier New", Courier, monospace;
-}
-h3.server-tag > .server-url {
-  font-weight: normal;
-}
+h3.server-tag { font-family: "Courier New", Courier, monospace; }
+h3.server-tag > .server-url { font-weight: normal; }
 
-.close-history-diagram {
+.server-details > p { margin: 0.5rem 0; }
+.server-details > p > span:first-child {
+  display: inline-block;
+  min-width: 6.5em;
+}
+.server-details > p > span.split { margin: 0 0.5em; }
+.server-details > hr { opacity: 0.5; margin: 1rem 0; }
+
+.listen-ports > ul {
   list-style: none;
   display: inline;
   padding: 0 0.5em;
+  margin: 0;
+}
+.listen-ports > ul > li {
+  display: inline-block;
+  margin-right: 0.5em;
+}
+
+.score-and-delay .base-score {
+  font-size: 0.6em;
+  vertical-align: top;
+  margin-left: 0.4rem;
+}
+
+.close-history > div { display: inline; }
+ul.close-history-diagram {
+  list-style: none;
+  display: inline;
+  padding: 0 0.5em 0 0;
   margin: 0;
 }
 .close-history-diagram > li {
