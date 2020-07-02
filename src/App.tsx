@@ -99,7 +99,7 @@ function ServerTable(props: { servers: [ServerWithThroughtput] }) {
   // History management
   function pushSelectedServer(server: ServerWithThroughtput | undefined) {
     if (server === undefined) {
-      window.history.pushState("", "", "/");
+      window.history.pushState("", "", ".");
     } else {
       const tag = server.server.tag;
       window.history.pushState(tag, "", `#${tag}`);
