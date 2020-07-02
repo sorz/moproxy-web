@@ -23,7 +23,7 @@ div.modal {
 }
 
 .modal .modal-dialog {
-  max-width: 500px;
+  max-width: 550px;
   margin: 1rem auto;
   background: white;
   border: 1px solid lightgray;
@@ -52,7 +52,7 @@ h3.server-tag > .server-url { font-weight: normal; }
 .server-details > div { margin: 0.5rem 0; }
 .server-details > div > span:first-child {
   display: inline-block;
-  min-width: 6.5em;
+  min-width: 7em;
 }
 .server-details > div > span.split { margin: 0 0.5em; }
 .server-details > hr { opacity: 0.5; margin: 1rem 0; }
