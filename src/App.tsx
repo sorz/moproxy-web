@@ -202,6 +202,7 @@ function ServerDetail(props: { onDismiss: () => void, item: ServerWithThroughtpu
   const { server, throughput } = props.item;
   const history = BigInt(server.status.close_history);
   const history_size = Math.min(64, server.status.conn_total - server.status.conn_alive);
+  const errorConnRate = (server.status.conn_error / server.status.conn_total * 100).toFixed(1)
   return (
     <Modal onDismiss={props.onDismiss}>
       <h3 className="server-tag">{server.tag}<br />
@@ -237,11 +238,11 @@ function ServerDetail(props: { onDismiss: () => void, item: ServerWithThroughtpu
         </div>
         <div>
           <span>Connections:</span>
-          {server.status.conn_alive} alive
+          {format.numberWithCommas(server.status.conn_alive)} alive
           <span className="split">/</span>
-          {server.status.conn_error} error
+          {format.numberWithCommas(server.status.conn_error)} ({errorConnRate}%) error
           <span className="split">/</span>
-          {server.status.conn_total} total
+          {format.numberWithCommas(server.status.conn_total)} total
         </div>
         <div className="close-history">
           <span>Close history:</span>
