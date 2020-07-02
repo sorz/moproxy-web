@@ -1,18 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Throughput, ServerWithThroughtput, useMoproxyStatus, useMoproxyVersion } from './backend';
 import * as format from './formatUtils';
 import deepEqual from "deep-equal";
 
 
+function useDocumentEventListener<K extends keyof DocumentEventMap>(
+  event: K, callback: (event: DocumentEventMap[K]) => void) {
+  useEffect(() => {
+    document.addEventListener(event, callback);
+    return () => document.removeEventListener(event, callback);
+  }, []);
+}
+
 function useDocumentVisibility() {
   const [hidden, setHidden] = useState(document.hidden);
-  const onVisibilityChange = () => setHidden(document.hidden);
-
-  useEffect(() => {
-    document.addEventListener('visibilitychange', onVisibilityChange);
-    return () => document.removeEventListener('visibilitychange', onVisibilityChange);
-  }, []);
-
+  useDocumentEventListener('visibilitychange', () => setHidden(document.hidden));
   return hidden;
 }
 
@@ -69,11 +71,26 @@ function TrafficSwitch(props: { full: boolean, onChange: (full: boolean) => void
 function ServerTable(props: { servers: [ServerWithThroughtput] }) {
   const [showFullTraffic, setShowFullTraffic] = useState(true);
   const [selectedServer, setSelectedServer] = useState<ServerWithThroughtput>();
+  const refSelectedServerTag = useRef<string>();
+  const refServerTags = useRef<string[]>();
 
   if (selectedServer) {
+    refSelectedServerTag.current = selectedServer.server.tag;
+    refServerTags.current = props.servers.map(s => s.server.tag);
     const updated = props.servers.find((s) => s.server.tag == selectedServer.server.tag);
     if (updated && !deepEqual(selectedServer, updated)) setSelectedServer(updated);
   }
+
+  useDocumentEventListener('keydown', e => {
+    if (!refSelectedServerTag.current || !refServerTags.current) return;
+    if (e.key != 'ArrowLeft' && e.key != 'ArrowRight') return;
+    const origIdx = refServerTags.current.findIndex(tag => tag == refSelectedServerTag.current);
+    if (origIdx == -1) return;
+    const newIdx = origIdx + (e.key == 'ArrowLeft' ? -1 : 1)
+    if (newIdx < 0 || newIdx >= props.servers.length) return;
+    setSelectedServer(props.servers[newIdx]);
+    e.stopPropagation();
+  });
 
   return (
     <table>
@@ -109,14 +126,7 @@ function Interval(props: { millis: number, onTick: () => void }) {
 }
 
 function Modal(props: { onDismiss: () => void, children: React.ReactNode }) {
-  const escKeyCallback = (event: KeyboardEvent) => event.keyCode === 27 && props.onDismiss();
-  useEffect(() => {
-    document.addEventListener("keydown", escKeyCallback);
-    return () => {
-      document.removeEventListener("keydown", escKeyCallback);
-    }
-  })
-
+  useDocumentEventListener("keydown", e => e.keyCode === 27 && props.onDismiss());
   return (
     <div className="modal" role="dialog" onClick={props.onDismiss}>
       <div className="modal-dialog" onClick={e => e.stopPropagation()}>
@@ -137,7 +147,6 @@ function bitCount(n: bigint) {
 
 function ConnectionCloseHistory(props: { history: bigint, size: number }) {
   const errCount = bitCount(props.history);
-  console.log('errCount', errCount);
   return (
     <div>
       <ul className="close-history-diagram" >
