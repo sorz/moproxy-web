@@ -120,6 +120,7 @@ function ServerTable(props: { servers: [ServerWithThroughtput] }) {
     }
     window.addEventListener('popstate', onPopStateCallback);
     return () => window.removeEventListener('popstate', onPopStateCallback);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (<>
@@ -151,6 +152,7 @@ function Interval(props: { millis: number, onTick: () => void }) {
   useEffect(() => {
     const id = setInterval(props.onTick, props.millis);
     return () => clearInterval(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.millis]);
   return <></>;
 }
