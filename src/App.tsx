@@ -87,13 +87,17 @@ function ServerTable(props: { servers: [ServerWithThroughtput] }) {
   // Keyboard shortcut
   useDocumentEventListener('keydown', e => {
     if (!refSelectedServerTag.current || !refServerTags.current) return;
-    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    const keyPrev = new Set(['ArrowUp', 'k']);
+    const keyNext = new Set(['ArrowDown', 'j']);
+
+    if (!keyPrev.has(e.key) && !keyNext.has(e.key)) return;
     const origIdx = refServerTags.current.findIndex(tag => tag === refSelectedServerTag.current);
     if (origIdx === -1) return;
-    const newIdx = origIdx + (e.key === 'ArrowLeft' ? -1 : 1)
+    const newIdx = origIdx + (keyPrev.has(e.key) ? -1 : 1)
     if (newIdx < 0 || newIdx >= props.servers.length) return;
     pushSelectedServer(props.servers[newIdx]);
     e.stopPropagation();
+    e.preventDefault();
   });
 
   // History management
