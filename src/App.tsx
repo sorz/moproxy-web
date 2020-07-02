@@ -74,13 +74,16 @@ function ServerTable(props: { servers: [ServerWithThroughtput] }) {
   const refSelectedServerTag = useRef<string>();
   const refServerTags = useRef<string[]>();
 
+  const findServerByTag = (tag: string) => props.servers.find((s) => s.server.tag == tag);
+
   if (selectedServer) {
     refSelectedServerTag.current = selectedServer.server.tag;
     refServerTags.current = props.servers.map(s => s.server.tag);
-    const updated = props.servers.find((s) => s.server.tag == selectedServer.server.tag);
+    const updated = findServerByTag(selectedServer.server.tag);
     if (updated && !deepEqual(selectedServer, updated)) setSelectedServer(updated);
   }
 
+  // Keyboard shortcut
   useDocumentEventListener('keydown', e => {
     if (!refSelectedServerTag.current || !refServerTags.current) return;
     if (e.key != 'ArrowLeft' && e.key != 'ArrowRight') return;
@@ -88,9 +91,36 @@ function ServerTable(props: { servers: [ServerWithThroughtput] }) {
     if (origIdx == -1) return;
     const newIdx = origIdx + (e.key == 'ArrowLeft' ? -1 : 1)
     if (newIdx < 0 || newIdx >= props.servers.length) return;
-    setSelectedServer(props.servers[newIdx]);
+    pushSelectedServer(props.servers[newIdx]);
     e.stopPropagation();
   });
+
+  // History management
+  function pushSelectedServer(server: ServerWithThroughtput | undefined) {
+    if (server == undefined) {
+      window.history.pushState("", "", "/");
+    } else {
+      const tag = server.server.tag;
+      window.history.pushState(tag, "", `#${tag}`);
+    }
+    setSelectedServer(server);
+  }
+
+  function onPopStateCallback(event: PopStateEvent) {
+    const tag = event.state as string;
+    const server = findServerByTag(tag);
+    setSelectedServer(server);
+  }
+
+  const tagOnUrl = window.location.hash.slice(1);
+  if (tagOnUrl && !selectedServer) {
+    setSelectedServer(findServerByTag(tagOnUrl));
+  }
+
+  useEffect(() => {
+    window.addEventListener('popstate', onPopStateCallback);
+    return () => window.removeEventListener('popstate', onPopStateCallback);
+  }, []);
 
   return (
     <table>
@@ -107,12 +137,12 @@ function ServerTable(props: { servers: [ServerWithThroughtput] }) {
       <tbody id="servers">
         {props.servers.map(s =>
           <ServerRow
-            server={s} key={s.server.tag} showFullTraffic={showFullTraffic} onClick={setSelectedServer}
+            server={s} key={s.server.tag} showFullTraffic={showFullTraffic} onClick={pushSelectedServer}
           />
         )}
       </tbody>
       {selectedServer &&
-        <ServerDetail item={selectedServer} onDismiss={() => setSelectedServer(undefined)} />}
+        <ServerDetail item={selectedServer} onDismiss={() => pushSelectedServer(undefined)} />}
     </table>
   );
 }
