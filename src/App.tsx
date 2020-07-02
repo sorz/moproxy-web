@@ -180,7 +180,7 @@ function ServerDetail(props: { onDismiss: () => void, item: ServerWithThroughtpu
           <span>Delay / score:</span>
           <span className="current-delay">{format.durationToMills(server.status.delay?.Some) || "-"}</span>
           <span className="split">/</span>
-          <span>{format.numberWithCommas(server.status.score)}</span>
+          <span>{server.status.score ? format.numberWithCommas(server.status.score) : "-"}</span>
           <span className="base-score" title="Base score">
             ({format.numberWithCommas(server.config.score_base, true)})</span>
         </p>
