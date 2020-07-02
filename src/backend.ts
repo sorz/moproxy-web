@@ -74,6 +74,7 @@ export function useMoproxyStatus() {
   const [isError, setIsError] = useState(false);
 
   useEffect(() => {
+    if (isLoading) return;
     const fetchStatus = async () => {
       setIsError(false);
       setIsLoading(true);
