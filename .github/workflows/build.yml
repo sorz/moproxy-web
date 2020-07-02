@@ -1,0 +1,26 @@
+name: build
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    name: build production
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: borales/actions-yarn@v2
+        with:
+          cmd: install
+      - uses: borales/actions-yarn@v2
+        with:
+          cmd: build
+      - uses: papeloto/action-zip@v1
+        with:
+          files: build/
+          dest: build.zip
+      - uses: actions/upload-artifact@v1
+        with:
+          name: build
+          path: ${{ github.workspace }}/build.zip
