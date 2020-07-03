@@ -216,34 +216,34 @@ function ServerDetail(props: { onDismiss: () => void, item: ServerWithThroughtpu
       </h3>
       <div className="server-details">
         <div className="listen-ports">
-          <span>Listen ports:</span>
+          <span>Listen ports</span>
           TCP
           <ul>{server.config.listen_ports.map(port => (
             <li key={port}>&#8203;{port}</li>
           ))}</ul>
         </div>
         <div>
-          <span>Max wait:</span>
+          <span>Max wait</span>
           <span>{format.humanDuration(server.config.max_wait)}</span>
         </div>
         <div>
-          <span>Test target:</span>
+          <span>Test target</span>
           <span>dns+tcp://{server.config.test_dns}</span>
         </div>
         <hr/>
         <div className="score-and-delay">
-          <span>Delay / score:</span>
+          <span>Delay / score</span>
           <span className="current-delay">{format.durationToMills(server.status.delay?.Some) || "-"}</span>
           <span className="split">/</span>
           <span>{server.status.score ? format.numberWithCommas(server.status.score) : "-"}</span>
           <span className="base-score" title="Base score">
             ({format.numberWithCommas(server.config.score_base, true)})</span>
         </div>
-        <div>
-          <span>Thoughput:</span><FullThroughput bw={throughput}/>
+        <div className="throughput">
+          <span>Thoughput</span><FullThroughput bw={throughput}/>
         </div>
         <div>
-          <span>Connections:</span>
+          <span>Connections</span>
           {format.numberWithCommas(server.status.conn_alive)} alive
           <span className="split">/</span>
           {format.numberWithCommas(server.status.conn_error)} ({errorConnRate}%) error
@@ -251,11 +251,11 @@ function ServerDetail(props: { onDismiss: () => void, item: ServerWithThroughtpu
           {format.numberWithCommas(server.status.conn_total)} total
         </div>
         <div className="close-history">
-          <span>Close history:</span>
+          <span>Close history</span>
           <ConnectionCloseHistory history={history} size={history_size} />
         </div>
         <div>
-          <span>Traffic:</span>
+          <span>Traffic</span>
           Up {format.humanFileSize(server.traffic.tx_bytes)}
           <span className="split">+</span>
           Dn {format.humanFileSize(server.traffic.rx_bytes)}

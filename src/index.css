@@ -49,13 +49,25 @@ div.modal {
 h3.server-tag { font-family: "Courier New", Courier, monospace; }
 h3.server-tag > .server-url { font-weight: normal; }
 
-.server-details > div { margin: 0.5rem 0; }
+.server-details { display: table; }
+.server-details > div {
+  margin: 0.5rem 0;
+  display: table-row;
+  line-height: 1.8;
+}
 .server-details > div > span:first-child {
-  display: inline-block;
-  min-width: 7em;
+  display: table-cell;
+  padding-right: 1.5em;
+}
+.server-details > div:hover {
+  color: black;
 }
 .server-details > div > span.split { margin: 0 0.5em; }
-.server-details > hr { opacity: 0.5; margin: 1rem 0; }
+.server-details > hr {
+  height: 1em;
+  width: 100%;
+  display: table-row;
+}
 
 .listen-ports > ul {
   list-style: none;
@@ -74,6 +86,11 @@ h3.server-tag > .server-url { font-weight: normal; }
   margin-left: 0.4rem;
 }
 
+.throughput span.tx-speed, .throughput span.rx-speed {
+  min-width: 6em;
+  display: inline-block;
+}
+
 .close-history > div { display: inline; }
 ul.close-history-diagram {
   list-style: none;
@@ -85,8 +102,8 @@ ul.close-history-diagram {
   width: 4px;
   height: 1em;
   display: inline-block;
-  border: solid 1px white;
-  vertical-align: bottom;
+  border-right: solid 1px white;
+  vertical-align: middle;
 }
 .close-history-diagram > li.close-ok { background: green; }
 .close-history-diagram > li.close-err { background: red; }
