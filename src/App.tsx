@@ -72,10 +72,10 @@ function TrafficSwitch(props: { full: boolean, onChange: (full: boolean) => void
 function ServerTable(props: { servers: [ServerWithThroughtput] }) {
   const [showFullTraffic, setShowFullTraffic] = useState(true);
   const [selectedServer, setSelectedServer] = useState<ServerWithThroughtput>();
-  const refSelectedServerTag = useRef<string>();
-  const refServers = useRef<[ServerWithThroughtput]>();
-  refServers.current = props.servers;
+  const refSelectedServerTag = useRef(selectedServer?.server.tag);
+  const refServers = useRef(props.servers);
   refSelectedServerTag.current = selectedServer?.server.tag;
+  refServers.current = props.servers;
 
   const findServerByTag = useCallback((tag: string) => 
     refServers.current?.find((s) => s.server.tag === tag), []);
@@ -88,7 +88,7 @@ function ServerTable(props: { servers: [ServerWithThroughtput] }) {
 
   // Keyboard shortcut
   const onKeyDownCallback = useCallback((e: KeyboardEvent) => {
-    if (!refSelectedServerTag.current || !refServers.current) return;
+    if (!refSelectedServerTag.current) return;
     const keyPrev = new Set(['ArrowUp', 'k']);
     const keyNext = new Set(['ArrowDown', 'j']);
 

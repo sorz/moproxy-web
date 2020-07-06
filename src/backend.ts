@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 
 type Option<T> = null | { Some: T };
@@ -67,39 +67,42 @@ interface MoproxyStatus {
 }
 
 export function useMoproxyStatus() {
-  const uri = process.env.REACT_APP_STATUS_URI || 'status';
   const [status, setStatus] = useState<MoproxyStatus>();
   const [updateAt, setUpdateAt] = useState(Date.now());
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
+  const refIsLoading = useRef(isLoading);
+  refIsLoading.current = isLoading;
 
   useEffect(() => {
-    if (isLoading) return;
+    if (refIsLoading.current) return;
     const fetchStatus = async () => {
       setIsError(false);
       setIsLoading(true);
+      refIsLoading.current = true;
       try {
+        const uri = process.env.REACT_APP_STATUS_URI || 'status';
         const resp = await fetch(uri);
         setStatus(await resp.json());
       } catch (err) {
         setIsError(err);
       } finally {
         setIsLoading(false);
+        refIsLoading.current = false;
       }
     };
     fetchStatus();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [updateAt]);
 
   return { status, isLoading, isError, setUpdateAt };
 }
 
 export function useMoproxyVersion() {
-  const uri = process.env.REACT_APP_VERSION_URI || 'version';
   const [version, setVersion] = useState<string>();
   useEffect(() => {
     const fetchStatus = async () => {
       try {
+        const uri = process.env.REACT_APP_VERSION_URI || 'version';
         const resp = await fetch(uri);
         setVersion(await resp.text());
       } catch (err) {
@@ -108,7 +111,6 @@ export function useMoproxyVersion() {
       }
     };
     fetchStatus();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   return version;
 }
