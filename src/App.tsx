@@ -32,6 +32,7 @@ type ServerRowProps = {
   server: ServerWithThroughtput,
   onClick: (item: ServerWithThroughtput) => void,
   showFullTraffic: boolean,
+  selected: boolean,
 }
 
 function ServerRow(props: ServerRowProps) {
@@ -41,7 +42,7 @@ function ServerRow(props: ServerRowProps) {
   const columnThouughput = totalThroughput ? format.humanThroughput(totalThroughput) : "";
 
   return (
-    <tr>
+    <tr className={props.selected ? "selected" : ""}>
       <td><button title={url} onClick={() => props.onClick(props.server)}>{server.tag}</button></td>
       <td><span title="based on average delay or custom method">{server.status.score || "-"}</span></td>
       <td><span title="TCP handshake included">{format.durationToMills(server.status.delay?.Some) || "-"}</span></td>
@@ -143,8 +144,8 @@ function ServerTable(props: { servers: [ServerWithThroughtput] }) {
       </thead>
       <tbody id="servers">
         {props.servers.map(s =>
-          <ServerRow
-            server={s} key={s.server.tag} showFullTraffic={showFullTraffic} onClick={pushSelectedServer}
+          <ServerRow server={s} key={s.server.tag} showFullTraffic={showFullTraffic}
+            onClick={pushSelectedServer} selected={selectedServer?.server.tag === s.server.tag}
           />
         )}
       </tbody>

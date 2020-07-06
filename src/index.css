@@ -8,6 +8,7 @@ th { line-height: 2; padding: 0 0.8em; }
 tr.offline { background: lightpink; }
 #servers { font-family: "Courier New", Courier, monospace; }
 #servers tr:hover { background-color: #eee; }
+#servers tr.selected { background-color: #eee; }
 #servers td:nth-child(n+2) { text-align: right; }
 thead th:nth-child(n+2) { text-align: right; }
 #servers td:last-child, thead th:last-child { text-align: left; }
