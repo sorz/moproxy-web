@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Throughput, ServerWithThroughtput, useMoproxyStatus, useMoproxyVersion } from './backend';
 import * as format from './formatUtils';
 import deepEqual from "deep-equal";
@@ -9,13 +9,13 @@ function useDocumentEventListener<K extends keyof DocumentEventMap>(
   useEffect(() => {
     document.addEventListener(event, callback);
     return () => document.removeEventListener(event, callback);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [event, callback]);
 }
 
 function useDocumentVisibility() {
   const [hidden, setHidden] = useState(document.hidden);
-  useDocumentEventListener('visibilitychange', () => setHidden(document.hidden));
+  const onChangeCallback = useCallback(() => setHidden(document.hidden), []);
+  useDocumentEventListener('visibilitychange', onChangeCallback);
   return hidden;
 }
 
@@ -73,32 +73,35 @@ function ServerTable(props: { servers: [ServerWithThroughtput] }) {
   const [showFullTraffic, setShowFullTraffic] = useState(true);
   const [selectedServer, setSelectedServer] = useState<ServerWithThroughtput>();
   const refSelectedServerTag = useRef<string>();
-  const refServerTags = useRef<string[]>();
+  const refServers = useRef<[ServerWithThroughtput]>();
+  refServers.current = props.servers;
+  refSelectedServerTag.current = selectedServer?.server.tag;
 
-  const findServerByTag = (tag: string) => props.servers.find((s) => s.server.tag === tag);
+  const findServerByTag = useCallback((tag: string) => 
+    refServers.current?.find((s) => s.server.tag === tag), []);
 
   if (selectedServer) {
-    refSelectedServerTag.current = selectedServer.server.tag;
-    refServerTags.current = props.servers.map(s => s.server.tag);
     const updated = findServerByTag(selectedServer.server.tag);
     if (updated && !deepEqual(selectedServer, updated)) setSelectedServer(updated);
   }
+  const dismiss = useCallback(() => pushSelectedServer(undefined), []);
 
   // Keyboard shortcut
-  useDocumentEventListener('keydown', e => {
-    if (!refSelectedServerTag.current || !refServerTags.current) return;
+  const onKeyDownCallback = useCallback((e: KeyboardEvent) => {
+    if (!refSelectedServerTag.current || !refServers.current) return;
     const keyPrev = new Set(['ArrowUp', 'k']);
     const keyNext = new Set(['ArrowDown', 'j']);
 
     if (!keyPrev.has(e.key) && !keyNext.has(e.key)) return;
-    const origIdx = refServerTags.current.findIndex(tag => tag === refSelectedServerTag.current);
+    const origIdx = refServers.current.findIndex(s => s.server.tag === refSelectedServerTag.current);
     if (origIdx === -1) return;
     const newIdx = origIdx + (keyPrev.has(e.key) ? -1 : 1)
-    if (newIdx < 0 || newIdx >= props.servers.length) return;
-    pushSelectedServer(props.servers[newIdx]);
+    if (newIdx < 0 || newIdx >= refServers.current.length) return;
+    pushSelectedServer(refServers.current[newIdx]);
     e.stopPropagation();
     e.preventDefault();
-  });
+  }, []);
+  useDocumentEventListener('keydown', onKeyDownCallback);
 
   // History management
   function pushSelectedServer(server: ServerWithThroughtput | undefined) {
@@ -116,16 +119,15 @@ function ServerTable(props: { servers: [ServerWithThroughtput] }) {
     setSelectedServer(findServerByTag(tagOnUrl));
   }
 
+  const onPopStateCallback = useCallback((event: PopStateEvent) => {
+    const tag = event.state as string;
+    const server = findServerByTag(tag);
+    setSelectedServer(server);
+  }, [findServerByTag]);
   useEffect(() => {
-    function onPopStateCallback(event: PopStateEvent) {
-      const tag = event.state as string;
-      const server = findServerByTag(tag);
-      setSelectedServer(server);
-    }
     window.addEventListener('popstate', onPopStateCallback);
     return () => window.removeEventListener('popstate', onPopStateCallback);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [onPopStateCallback]);
 
   return (<>
     <table>
@@ -148,7 +150,7 @@ function ServerTable(props: { servers: [ServerWithThroughtput] }) {
       </tbody>
     </table>
     {selectedServer &&
-      <ServerDetail item={selectedServer} onDismiss={() => pushSelectedServer(undefined)} />}
+      <ServerDetail item={selectedServer} onDismiss={dismiss} />}
   </>);
 }
 
@@ -162,12 +164,14 @@ function Interval(props: { millis: number, onTick: () => void }) {
 }
 
 function Modal(props: { onDismiss: () => void, children: React.ReactNode }) {
-  useDocumentEventListener("keydown", e => e.keyCode === 27 && props.onDismiss());
+  const { onDismiss, children } = props;
+  const keyDownCallback = useCallback(e => e.keyCode === 27 && onDismiss(), [onDismiss]);
+  useDocumentEventListener("keydown", keyDownCallback);
   return (
-    <div className="modal" role="dialog" onClick={props.onDismiss}>
+    <div className="modal" role="dialog" onClick={onDismiss}>
       <div className="modal-dialog" onClick={e => e.stopPropagation()}>
-        {props.children}
-        <button className="action-close" onClick={props.onDismiss} autoFocus>CLOSE</button>
+        {children}
+        <button className="action-close" onClick={onDismiss} autoFocus>CLOSE</button>
       </div>
     </div>
   );
