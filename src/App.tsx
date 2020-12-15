@@ -1,8 +1,12 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Throughput, ServerWithThroughtput, useMoproxyStatus, useMoproxyVersion } from './backend';
-import * as format from './formatUtils';
+import createPersistedState from 'use-persisted-state';
 import deepEqual from "deep-equal";
 
+import { Throughput, ServerWithThroughtput, useMoproxyStatus, useMoproxyVersion } from './backend';
+import * as format from './formatUtils';
+
+
+const useShowFullTraffic = createPersistedState('show-full-traffic');
 
 function useDocumentEventListener<K extends keyof DocumentEventMap>(
   event: K, callback: (event: DocumentEventMap[K]) => void) {
@@ -71,7 +75,7 @@ function TrafficSwitch(props: { full: boolean, onChange: (full: boolean) => void
 }
 
 function ServerTable(props: { servers: [ServerWithThroughtput] }) {
-  const [showFullTraffic, setShowFullTraffic] = useState(true);
+  const [showFullTraffic, setShowFullTraffic] = useShowFullTraffic(true);
   const [selectedServer, setSelectedServer] = useState<ServerWithThroughtput>();
   const refSelectedServerTag = useRef(selectedServer?.server.tag);
   const refServers = useRef(props.servers);
