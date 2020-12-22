@@ -1,30 +1,93 @@
-body { margin: 1em 3em; color: #555; }
-table { border-collapse: collapse; }
-tbody { color: black; }
-h1, h2 { color: darkslategray; }
-th, td { border-bottom: 1px solid #ddd; }
-td { line-height: 1.5; font-size: 1.2em; padding: 0 0.8em; }
-th { line-height: 2; padding: 0 0.8em; }
-tr.offline { background: lightpink; }
-#servers { font-family: "Courier New", Courier, monospace; }
-#servers tr:hover { background-color: #eee; }
-#servers tr.selected { background-color: #eee; }
-#servers td:nth-child(n+2) { text-align: right; }
-thead th:nth-child(n+2) { text-align: right; }
-#servers td:last-child, thead th:last-child { text-align: left; }
-#total-alive-conn { margin-right: 1.5em; }
-th > button, td > button { background: none; border: none; padding: inherit; font-family: inherit;
-  color: inherit; font-size: inherit; font-weight: inherit; cursor: pointer; }
-th > button:hover, td > button:hover { text-decoration: underline; }
+body {
+  margin: 1em 3em;
+  color: #555;
+}
+table {
+  border-collapse: collapse;
+}
+tbody {
+  color: black;
+}
+h1,
+h2 {
+  color: darkslategray;
+}
+th,
+td {
+  border-bottom: 1px solid #ddd;
+}
+td {
+  line-height: 1.5;
+  font-size: 1.2em;
+  padding: 0 0.8em;
+}
+th {
+  line-height: 2;
+  padding: 0 0.8em;
+}
+tr.offline {
+  background: lightpink;
+}
+#servers {
+  font-family: "Courier New", Courier, monospace;
+}
+#servers tr:hover {
+  background-color: #eee;
+}
+#servers tr.selected {
+  background-color: #eee;
+}
+#servers td:nth-child(n + 2) {
+  text-align: right;
+}
+thead th:nth-child(n + 2) {
+  text-align: right;
+}
+#servers td:last-child,
+thead th:last-child {
+  text-align: left;
+}
+#total-alive-conn {
+  margin-right: 1.5em;
+}
+th > button,
+td > button {
+  background: none;
+  border: none;
+  padding: inherit;
+  font-family: inherit;
+  color: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  cursor: pointer;
+}
+th > button:hover,
+td > button:hover {
+  text-decoration: underline;
+}
 
-span.filesize { color: gray; }
-span.filesize.unit-M { color: black; }
-span.filesize.unit-G { color: green; }
-span.filesize.unit-T { color: blue; }
-span.filesize.unit-P { color: red; }
+span.filesize {
+  color: gray;
+}
+span.filesize.unit-M {
+  color: black;
+}
+span.filesize.unit-G {
+  color: green;
+}
+span.filesize.unit-T {
+  color: blue;
+}
+span.filesize.unit-P {
+  color: red;
+}
 
 div.modal {
-  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background: rgba(0, 0, 0, 0.5);
   padding: 2rem 1rem;
 }
@@ -53,10 +116,16 @@ div.modal {
   text-decoration: underline;
 }
 
-h3.server-tag { font-family: "Courier New", Courier, monospace; }
-h3.server-tag > .server-url { font-weight: normal; }
+h3.server-tag {
+  font-family: "Courier New", Courier, monospace;
+}
+h3.server-tag > .server-url {
+  font-weight: normal;
+}
 
-.server-details { display: table; }
+.server-details {
+  display: table;
+}
 .server-details > div {
   margin: 0.5rem 0;
   display: table-row;
@@ -69,7 +138,9 @@ h3.server-tag > .server-url { font-weight: normal; }
 .server-details > div:hover {
   color: black;
 }
-.server-details > div > span.split { margin: 0 0.5em; }
+.server-details > div > span.split {
+  margin: 0 0.5em;
+}
 .server-details > hr {
   height: 1em;
   width: 100%;
@@ -93,12 +164,15 @@ h3.server-tag > .server-url { font-weight: normal; }
   margin-left: 0.4rem;
 }
 
-.throughput span.tx-speed, .throughput span.rx-speed {
+.throughput span.tx-speed,
+.throughput span.rx-speed {
   min-width: 6em;
   display: inline-block;
 }
 
-.close-history > div { display: inline; }
+.close-history > div {
+  display: inline;
+}
 ul.close-history-diagram {
   list-style: none;
   display: inline;
@@ -112,6 +186,12 @@ ul.close-history-diagram {
   border-right: solid 1px white;
   vertical-align: middle;
 }
-.close-history-diagram > li.close-ok { background: green; }
-.close-history-diagram > li.close-err { background: red; }
-.close-history-summary > span:last-child { font-size: 0.6em; }
+.close-history-diagram > li.close-ok {
+  background: green;
+}
+.close-history-diagram > li.close-err {
+  background: red;
+}
+.close-history-summary > span:last-child {
+  font-size: 0.6em;
+}

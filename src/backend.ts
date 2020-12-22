@@ -1,69 +1,68 @@
-import { useState, useEffect, useRef } from 'react';
-
+import { useState, useEffect, useRef } from "react";
 
 type Option<T> = null | { Some: T };
 
 interface HttpProto {
   HTTP: {
-    connect_with_payload: boolean,
-  }
+    connect_with_payload: boolean;
+  };
 }
 
 interface SocksV5Proto {
   SOCKSv5: {
-    fake_handshaking: boolean,
-  }
+    fake_handshaking: boolean;
+  };
 }
 
 export interface Throughput {
-  tx_bps: number,
-  rx_bps: number,
+  tx_bps: number;
+  rx_bps: number;
 }
 
 export interface Duration {
-  secs: number,
-  nanos: number,
+  secs: number;
+  nanos: number;
 }
 
 interface Traffic {
-  tx_bytes: number,
-  rx_bytes: number,
+  tx_bytes: number;
+  rx_bytes: number;
 }
 
 interface ServerConfig {
-  test_dns: string,
-  max_wait: Duration,
-  listen_ports: [number],
-  score_base: number,
+  test_dns: string;
+  max_wait: Duration;
+  listen_ports: [number];
+  score_base: number;
 }
 
 interface ServerStatus {
-  delay: Option<Duration>,
-  score: number,
-  conn_alive: number,
-  conn_total: number,
-  conn_error: number,
-  close_history: number,
+  delay: Option<Duration>;
+  score: number;
+  conn_alive: number;
+  conn_total: number;
+  conn_error: number;
+  close_history: number;
 }
 
 export interface Server {
-  addr: string,
-  proto: SocksV5Proto | HttpProto,
-  tag: string,
-  config: ServerConfig,
-  status: ServerStatus,
-  traffic: Traffic,
+  addr: string;
+  proto: SocksV5Proto | HttpProto;
+  tag: string;
+  config: ServerConfig;
+  status: ServerStatus;
+  traffic: Traffic;
 }
 
 export interface ServerWithThroughtput {
-  server: Server,
-  throughput: Throughput,
-};
+  server: Server;
+  throughput: Throughput;
+}
 
 interface MoproxyStatus {
-  servers: [ServerWithThroughtput],
-  uptime: Duration,
-  throughput: Throughput,
+  servers: [ServerWithThroughtput];
+  uptime: Duration;
+  throughput: Throughput;
 }
 
 export function useMoproxyStatus() {
@@ -81,7 +80,7 @@ export function useMoproxyStatus() {
       setIsLoading(true);
       refIsLoading.current = true;
       try {
-        const uri = process.env.REACT_APP_STATUS_URI || 'status';
+        const uri = process.env.REACT_APP_STATUS_URI || "status";
         const resp = await fetch(uri);
         setStatus(await resp.json());
       } catch (err) {
@@ -102,7 +101,7 @@ export function useMoproxyVersion() {
   useEffect(() => {
     const fetchStatus = async () => {
       try {
-        const uri = process.env.REACT_APP_VERSION_URI || 'version';
+        const uri = process.env.REACT_APP_VERSION_URI || "version";
         const resp = await fetch(uri);
         setVersion(await resp.text());
       } catch (err) {
