@@ -7,6 +7,7 @@ import * as format from './formatUtils';
 
 
 const useShowFullTraffic = createPersistedState('show-full-traffic');
+const useAutoRefresh = createPersistedState('set-auto-refresh');
 
 function useDocumentEventListener<K extends keyof DocumentEventMap>(
   event: K, callback: (event: DocumentEventMap[K]) => void) {
@@ -303,7 +304,7 @@ function ServerDetail(props: { onDismiss: () => void, item: ServerWithThroughtpu
 }
 
 function RefreshControl(props: { isLoading: boolean, onRefresh: () => void }) {
-  const [autoRefresh, setAutoRefresh] = useState(true);
+  const [autoRefresh, setAutoRefresh] = useAutoRefresh(true);
   const hidden = useDocumentVisibility();
 
   function autoRefreshOnChange(event: React.ChangeEvent<HTMLInputElement>) {
