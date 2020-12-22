@@ -17,6 +17,12 @@ th > button, td > button { background: none; border: none; padding: inherit; fon
   color: inherit; font-size: inherit; font-weight: inherit; cursor: pointer; }
 th > button:hover, td > button:hover { text-decoration: underline; }
 
+span.filesize { color: gray; }
+span.filesize.unit-M { color: black; }
+span.filesize.unit-G { color: green; }
+span.filesize.unit-T { color: blue; }
+span.filesize.unit-P { color: red; }
+
 div.modal {
   position: fixed; top: 0; left: 0; right: 0; bottom: 0;
   background: rgba(0, 0, 0, 0.5);

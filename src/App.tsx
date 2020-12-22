@@ -54,10 +54,10 @@ function ServerRow(props: ServerRowProps) {
         <span title="# total connections">{format.humanQuantity(server.status.conn_total)}</span></td>
       <td>
         { props.showFullTraffic ? <>
-            <span title="total sent">{format.humanFileSize(server.traffic.tx_bytes)}</span> /&nbsp;
-            <span title="total received">{format.humanFileSize(server.traffic.rx_bytes)}</span>
+            <span title="total sent"><ColorfulFileSize bytes={server.traffic.tx_bytes} /></span> /&nbsp;
+            <span title="total received"><ColorfulFileSize bytes={server.traffic.rx_bytes} /></span>
           </> : <>
-            <span title="total traffic">{format.humanFileSize(server.traffic.tx_bytes + server.traffic.rx_bytes)}</span>
+            <span title="total traffic"><ColorfulFileSize bytes={server.traffic.tx_bytes + server.traffic.rx_bytes} /></span>
           </>
         }
       </td>
@@ -72,6 +72,32 @@ function TrafficSwitch(props: { full: boolean, onChange: (full: boolean) => void
       {props.full ? "Up / Down" : "Traffic"}
     </button>
   )
+}
+
+function ColorfulFileSize(props: { bytes: number }) {
+  if (props.bytes <= 0) return <>"0"</>;
+  if (props.bytes <= 1024) return <>"1"</>;
+  const kbytes = props.bytes / 1024;
+  const log1024 = Math.log(kbytes) / Math.log(1024);
+  let i = Math.floor(log1024);
+  if (log1024 - i < Math.log(100) / Math.log(1024) && i > 0) {
+    i -= 1;
+  }
+  const val = Math.round(kbytes / Math.pow(1024, i));
+  const unit = i < 1 ? '' : 'MGTPEZY'[i-1];
+
+  if (Math.log10(val) < 3) {
+    return <span className={`filesize unit-${unit}`}>{val.toFixed()}{unit}</span>;
+  } else {
+    const valHead = Math.floor(val / 1000);
+    const valTail = val - (valHead * 1000);
+    const headUnit = 'MGTPEZY'[i];
+    return <span className={`filesize unit-${unit}`}>
+      <span className={`filesize unit-${headUnit}`}>{valHead.toFixed()}</span>
+      {valTail.toFixed().padStart(3, '0')}
+      {unit}
+    </span>;
+  }
 }
 
 function ServerTable(props: { servers: [ServerWithThroughtput] }) {
