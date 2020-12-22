@@ -76,8 +76,8 @@ function TrafficSwitch(props: { full: boolean, onChange: (full: boolean) => void
 }
 
 function ColorfulFileSize(props: { bytes: number }) {
-  if (props.bytes <= 0) return <>"0"</>;
-  if (props.bytes <= 1024) return <>"1"</>;
+  if (props.bytes <= 0) return <>0</>;
+  if (props.bytes <= 1024) return <>1</>;
   const kbytes = props.bytes / 1024;
   const log1024 = Math.log(kbytes) / Math.log(1024);
   let i = Math.floor(log1024);
