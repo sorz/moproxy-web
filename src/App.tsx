@@ -30,21 +30,16 @@ function useDocumentVisibility() {
   return hidden;
 }
 
-function FullThroughput(props: { bw: Throughput }) {
-  return (
-    <>
-      <span title="upload">↑</span>&nbsp;
-      <span className="tx-speed">
-        {format.humanThroughput(props.bw.tx_bps)}
-      </span>
-      &nbsp;
-      <span title="download">↓</span>&nbsp;
-      <span className="rx-speed">
-        {format.humanThroughput(props.bw.rx_bps)}
-      </span>
-    </>
-  );
-}
+type FullThroughputProps = { bw: Throughput };
+const FullThroughput = ({ bw }: FullThroughputProps) => (
+  <>
+    <span title="upload">↑</span>&nbsp;
+    <span className="tx-speed">{format.humanThroughput(bw.tx_bps)}</span>
+    &nbsp;
+    <span title="download">↓</span>&nbsp;
+    <span className="rx-speed">{format.humanThroughput(bw.rx_bps)}</span>
+  </>
+);
 
 type ServerRowProps = {
   server: ServerWithThroughtput;
@@ -52,9 +47,12 @@ type ServerRowProps = {
   showFullTraffic: boolean;
   selected: boolean;
 };
-
-function ServerRow(props: ServerRowProps) {
-  const { server, throughput } = props.server;
+const ServerRow = ({
+  server: { server, throughput },
+  onClick,
+  showFullTraffic,
+  selected,
+}: ServerRowProps) => {
   const url = format.proxyUrl(server);
   const totalThroughput = throughput.tx_bps + throughput.rx_bps;
   const columnThouughput = totalThroughput
@@ -62,9 +60,9 @@ function ServerRow(props: ServerRowProps) {
     : "";
 
   return (
-    <tr className={props.selected ? "selected" : ""}>
+    <tr className={selected ? "selected" : ""}>
       <td>
-        <button title={url} onClick={() => props.onClick(props.server)}>
+        <button title={url} onClick={() => onClick({ server, throughput })}>
           {server.tag}
         </button>
       </td>
@@ -88,7 +86,7 @@ function ServerRow(props: ServerRowProps) {
         </span>
       </td>
       <td>
-        {props.showFullTraffic ? (
+        {showFullTraffic ? (
           <>
             <span title="total sent">
               <ColorfulFileSize bytes={server.traffic.tx_bytes} />
@@ -113,23 +111,20 @@ function ServerRow(props: ServerRowProps) {
       </td>
     </tr>
   );
-}
+};
 
-function TrafficSwitch(props: {
-  full: boolean;
-  onChange: (full: boolean) => void;
-}) {
-  return (
-    <button onClick={() => props.onChange(!props.full)}>
-      {props.full ? "Up / Down" : "Traffic"}
-    </button>
-  );
-}
+type TrafficSwitchProps = { full: boolean; onChange: (full: boolean) => void };
+const TrafficSwitch = ({ full, onChange }: TrafficSwitchProps) => (
+  <button onClick={() => onChange(!full)}>
+    {full ? "Up / Down" : "Traffic"}
+  </button>
+);
 
-function ColorfulFileSize(props: { bytes: number }) {
-  if (props.bytes <= 0) return <>0</>;
-  if (props.bytes <= 1024) return <>1</>;
-  const kbytes = props.bytes / 1024;
+type ColorfulFileSizeProps = { bytes: number };
+const ColorfulFileSize = ({ bytes }: ColorfulFileSizeProps) => {
+  if (bytes <= 0) return <>0</>;
+  if (bytes <= 1024) return <>1</>;
+  const kbytes = bytes / 1024;
   const log1024 = Math.log(kbytes) / Math.log(1024);
   let i = Math.floor(log1024);
   if (log1024 - i < Math.log(100) / Math.log(1024) && i > 0) {
@@ -157,15 +152,16 @@ function ColorfulFileSize(props: { bytes: number }) {
       </span>
     );
   }
-}
+};
 
-function ServerTable(props: { servers: [ServerWithThroughtput] }) {
+type ServerTableProps = { servers: [ServerWithThroughtput] };
+const ServerTable = ({ servers }: ServerTableProps) => {
   const [showFullTraffic, setShowFullTraffic] = useShowFullTraffic(true);
   const [selectedServer, setSelectedServer] = useState<ServerWithThroughtput>();
   const refSelectedServerTag = useRef(selectedServer?.server.tag);
-  const refServers = useRef(props.servers);
+  const refServers = useRef(servers);
   refSelectedServerTag.current = selectedServer?.server.tag;
-  refServers.current = props.servers;
+  refServers.current = servers;
 
   const findServerByTag = useCallback(
     (tag: string) => refServers.current?.find((s) => s.server.tag === tag),
@@ -246,7 +242,7 @@ function ServerTable(props: { servers: [ServerWithThroughtput] }) {
           </tr>
         </thead>
         <tbody id="servers">
-          {props.servers.map((s) => (
+          {servers.map((s) => (
             <ServerRow
               server={s}
               key={s.server.tag}
@@ -262,19 +258,20 @@ function ServerTable(props: { servers: [ServerWithThroughtput] }) {
       )}
     </>
   );
-}
+};
 
-function Interval(props: { millis: number; onTick: () => void }) {
+type IntervalProps = { millis: number; onTick: () => void };
+const Interval = ({ millis, onTick }: IntervalProps) => {
   useEffect(() => {
-    const id = setInterval(props.onTick, props.millis);
+    const id = setInterval(onTick, millis);
     return () => clearInterval(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.millis]);
+  }, [millis]);
   return <></>;
-}
+};
 
-function Modal(props: { onDismiss: () => void; children: React.ReactNode }) {
-  const { onDismiss, children } = props;
+type ModalProps = { onDismiss: () => void; children: React.ReactNode };
+const Modal = ({ onDismiss, children }: ModalProps) => {
   const keyDownCallback = useCallback((e) => e.keyCode === 27 && onDismiss(), [
     onDismiss,
   ]);
@@ -289,7 +286,7 @@ function Modal(props: { onDismiss: () => void; children: React.ReactNode }) {
       </div>
     </div>
   );
-}
+};
 
 function bitCount(n: bigint) {
   // Hamming weight
@@ -299,13 +296,17 @@ function bitCount(n: bigint) {
   return BigInt.asUintN(8, n);
 }
 
-function ConnectionCloseHistory(props: { history: bigint; size: number }) {
-  const errCount = bitCount(props.history);
+type ConnectionCloseHistoryProps = { history: bigint; size: number };
+const ConnectionCloseHistory = ({
+  history,
+  size,
+}: ConnectionCloseHistoryProps) => {
+  const errCount = bitCount(history);
   return (
     <div>
       <ul className="close-history-diagram">
-        {Array.from({ length: props.size }, (_, i) => {
-          const ok = ((props.history >> BigInt(i)) & 0x01n) === 0n;
+        {Array.from({ length: size }, (_, i) => {
+          const ok = ((history >> BigInt(i)) & 0x01n) === 0n;
           return (
             <li
               key={i}
@@ -317,22 +318,20 @@ function ConnectionCloseHistory(props: { history: bigint; size: number }) {
       </ul>
       <span
         className="close-history-summary"
-        title={`${errCount.toString()} error(s) in the lastest ${
-          props.size
-        } closed connection(s)`}
+        title={`${errCount.toString()} error(s) in the lastest ${size} closed connection(s)`}
       >
         {errCount.toString()}
-        <span>/{props.size}</span>
+        <span>/{size}</span>
       </span>
     </div>
   );
-}
+};
 
-function ServerDetail(props: {
-  onDismiss: () => void;
-  item: ServerWithThroughtput;
-}) {
-  const { server, throughput } = props.item;
+type ServerDetailProps = { onDismiss: () => void; item: ServerWithThroughtput };
+const ServerDetail = ({
+  onDismiss,
+  item: { server, throughput },
+}: ServerDetailProps) => {
   const history = BigInt(server.status.close_history);
   const history_size = Math.min(
     64,
@@ -343,7 +342,7 @@ function ServerDetail(props: {
     100
   ).toFixed(1);
   return (
-    <Modal onDismiss={props.onDismiss}>
+    <Modal onDismiss={onDismiss}>
       <h3 className="server-tag">
         {server.tag}
         <br />
@@ -413,9 +412,10 @@ function ServerDetail(props: {
       </div>
     </Modal>
   );
-}
+};
 
-function RefreshControl(props: { isLoading: boolean; onRefresh: () => void }) {
+type RefreshControlProps = { isLoading: boolean; onRefresh: () => void };
+const RefreshControl = ({ isLoading, onRefresh }: RefreshControlProps) => {
   const [autoRefresh, setAutoRefresh] = useAutoRefresh(true);
   const hidden = useDocumentVisibility();
 
@@ -425,7 +425,7 @@ function RefreshControl(props: { isLoading: boolean; onRefresh: () => void }) {
 
   return (
     <>
-      <button id="refresh" disabled={props.isLoading} onClick={props.onRefresh}>
+      <button id="refresh" disabled={isLoading} onClick={onRefresh}>
         Refresh
       </button>
       &nbsp;
@@ -437,12 +437,10 @@ function RefreshControl(props: { isLoading: boolean; onRefresh: () => void }) {
       />
       &nbsp;
       <label htmlFor="auto-refresh">auto</label>
-      {autoRefresh && !hidden && (
-        <Interval millis={1000} onTick={props.onRefresh} />
-      )}
+      {autoRefresh && !hidden && <Interval millis={1000} onTick={onRefresh} />}
     </>
   );
-}
+};
 
 function App() {
   const version = useMoproxyVersion();
