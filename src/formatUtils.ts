@@ -44,16 +44,6 @@ export function humanFileSize(bytes: number): string {
   );
 }
 
-export function humanThroughput(bps: number) {
-  if (bps === 0) return "0 bps";
-  const i = Math.floor(Math.log(bps) / Math.log(1000));
-  return (
-    (bps / Math.pow(1000, i)).toFixed(2) +
-    " " +
-    ["bps", "kbps", "Mbps", "Gbps", "Tbps"][i]
-  );
-}
-
 export function humanQuantity(n: number): string {
   if (n === 0) return "0";
   if (n > 1e4) return numberWithCommas(+(n / 1000).toFixed(0)) + "k";

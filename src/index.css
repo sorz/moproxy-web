@@ -44,8 +44,12 @@ thead th:nth-child(n + 2) {
   text-align: right;
 }
 #servers td:last-child,
-thead th:last-child {
+#servers thead th:last-child {
   text-align: left;
+}
+#servers td:last-child {
+  min-width: 7em;
+  text-align: right;
 }
 #total-alive-conn {
   margin-right: 1.5em;
@@ -80,6 +84,11 @@ span.filesize.unit-T {
 }
 span.filesize.unit-P {
   color: red;
+}
+
+span.throughput > span.unit {
+  color: gray;
+  font-size: 0.8em;
 }
 
 div.modal {

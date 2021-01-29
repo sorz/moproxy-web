@@ -36,10 +36,14 @@ type FullThroughputProps = { bw: Throughput };
 export const FullThroughput = ({ bw }: FullThroughputProps) => (
   <>
     <span title="upload">↑</span>&nbsp;
-    <span className="tx-speed">{format.humanThroughput(bw.tx_bps)}</span>
+    <span className="tx-speed">
+      <ThroughputSpan bps={bw.tx_bps} />
+    </span>
     &nbsp;
     <span title="download">↓</span>&nbsp;
-    <span className="rx-speed">{format.humanThroughput(bw.rx_bps)}</span>
+    <span className="rx-speed">
+      <ThroughputSpan bps={bw.rx_bps} />
+    </span>
   </>
 );
 
@@ -57,9 +61,11 @@ const ServerRow = ({
 }: ServerRowProps) => {
   const url = format.proxyUrl(server);
   const totalThroughput = throughput.tx_bps + throughput.rx_bps;
-  const columnThouughput = totalThroughput
-    ? format.humanThroughput(totalThroughput)
-    : "";
+  const columnThouughput = totalThroughput ? (
+    <ThroughputSpan bps={totalThroughput} />
+  ) : (
+    <></>
+  );
 
   return (
     <tr className={selected ? "selected" : ""}>
@@ -121,6 +127,22 @@ const TrafficSwitch = ({ full, onChange }: TrafficSwitchProps) => (
     {full ? "Up / Down" : "Traffic"}
   </button>
 );
+
+type ThroughputSpanProps = { bps: number };
+const ThroughputSpan = ({ bps }: ThroughputSpanProps) => {
+  if (bps === 0) return <span className="throughput">-</span>;
+  const i = Math.floor(Math.log(bps) / Math.log(1000));
+  const value = bps / Math.pow(1000, i);
+  const prefix = " kMGTP"[i];
+
+  return (
+    <span className="throughput">
+      {value.toFixed(i === 0 ? 0 : 1)}
+      <span className="unit-prefix">{prefix}</span>
+      <span className="unit">bps</span>
+    </span>
+  );
+};
 
 type ColorfulFileSizeProps = { bytes: number };
 const ColorfulFileSize = ({ bytes }: ColorfulFileSizeProps) => {
