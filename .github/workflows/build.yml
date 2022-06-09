@@ -9,11 +9,11 @@ jobs:
     name: build production
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: borales/actions-yarn@v3
+      - uses: actions/checkout@v3
+      - uses: borales/actions-yarn@v3.0.0
         with:
           cmd: up
-      - uses: borales/actions-yarn@v3
+      - uses: borales/actions-yarn@v3.0.0
         with:
           cmd: build
       - uses: papeloto/action-zip@v1
