@@ -258,7 +258,7 @@ const ServerTable = ({ servers }: ServerTableProps) => {
             <th>CUR / TTL</th>
             <th>
               <TrafficSwitch
-                full={showFullTraffic}
+                full={!!showFullTraffic}
                 onChange={(full) => setShowFullTraffic(full)}
               />
             </th>
@@ -270,7 +270,7 @@ const ServerTable = ({ servers }: ServerTableProps) => {
             <ServerRow
               server={s}
               key={s.server.tag}
-              showFullTraffic={showFullTraffic}
+              showFullTraffic={!!showFullTraffic}
               onClick={pushSelectedServer}
               selected={selectedServer?.server.tag === s.server.tag}
             />
@@ -312,7 +312,7 @@ const RefreshControl = ({ isLoading, onRefresh }: RefreshControlProps) => {
       <input
         id="auto-refresh"
         type="checkbox"
-        checked={autoRefresh}
+        checked={!!autoRefresh}
         onChange={autoRefreshOnChange}
       />
       &nbsp;

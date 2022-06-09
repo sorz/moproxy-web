@@ -84,7 +84,7 @@ export function useMoproxyStatus() {
         const resp = await fetch(uri);
         setStatus(await resp.json());
       } catch (err) {
-        setIsError(err);
+        setIsError(true);
       } finally {
         setIsLoading(false);
         refIsLoading.current = false;

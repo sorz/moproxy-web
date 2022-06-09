@@ -6,7 +6,7 @@ import * as format from "./formatUtils";
 
 type ModalProps = { onDismiss: () => void; children: React.ReactNode };
 const Modal = ({ onDismiss, children }: ModalProps) => {
-  const keyDownCallback = useCallback((e) => e.keyCode === 27 && onDismiss(), [
+  const keyDownCallback = useCallback((e: KeyboardEvent) => e.keyCode === 27 && onDismiss(), [
     onDismiss,
   ]);
   useDocumentEventListener("keydown", keyDownCallback);
