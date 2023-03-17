@@ -32,7 +32,7 @@ interface Traffic {
 interface ServerConfig {
   test_dns: string;
   max_wait: Duration;
-  listen_ports: [number];
+  capabilities: [string];
   score_base: number;
 }
 

@@ -83,15 +83,16 @@ const ServerDetail = ({
         <small className="server-url">{format.proxyUrl(server)}</small>
       </h3>
       <div className="server-details">
-        <div className="listen-ports">
-          <span>Listen ports</span>
-          TCP
-          <ul>
-            {server.config.listen_ports.map((port) => (
-              <li key={port}>&#8203;{port}</li>
-            ))}
-          </ul>
-        </div>
+        { server.config.capabilities.length > 0 &&
+          <div className="capabilities">
+            <span>Capabilities</span>
+            <ul>
+              {server.config.capabilities.map((cap) => (
+                <li key={cap}>{cap} </li>
+              ))}
+            </ul>
+          </div>
+        }
         <div>
           <span>Max wait</span>
           <span>{format.humanDuration(server.config.max_wait)}</span>

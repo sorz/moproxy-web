@@ -156,13 +156,13 @@ h3.server-tag > .server-url {
   display: table-row;
 }
 
-.listen-ports > ul {
+.capabilities > ul {
   list-style: none;
   display: inline;
-  padding: 0 0.5em;
+  padding: 0;
   margin: 0;
 }
-.listen-ports > ul > li {
+.capabilities > ul > li {
   display: inline-block;
   margin-right: 0.5em;
 }
