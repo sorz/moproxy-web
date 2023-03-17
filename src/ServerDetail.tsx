@@ -72,7 +72,7 @@ const ServerDetail = ({
     server.status.conn_total - server.status.conn_alive
   );
   const errorConnRate = (
-    (server.status.conn_error / server.status.conn_total) *
+    (server.status.conn_error / (server.status.conn_total || 1)) *
     100
   ).toFixed(1);
   return (
@@ -117,33 +117,35 @@ const ServerDetail = ({
             ({format.numberWithCommas(server.config.score_base, true)})
           </span>
         </div>
-        <div className="throughput">
-          <span>Thoughput</span>
-          <FullThroughput bw={throughput} />
-        </div>
-        <div>
-          <span>Connections</span>
-          {format.numberWithCommas(server.status.conn_alive)} alive
-          <span className="split">/</span>
-          {format.numberWithCommas(server.status.conn_error)} ({errorConnRate}%)
-          error
-          <span className="split">/</span>
-          {format.numberWithCommas(server.status.conn_total)} total
-        </div>
-        <div className="close-history">
-          <span>Close history</span>
-          <ConnectionCloseHistory history={history} size={history_size} />
-        </div>
-        <div>
-          <span>Traffic</span>
-          Up {format.humanFileSize(server.traffic.tx_bytes)}
-          <span className="split">+</span>
-          Dn {format.humanFileSize(server.traffic.rx_bytes)}
-          <span className="split">=</span>
-          {format.humanFileSize(
-            server.traffic.rx_bytes + server.traffic.tx_bytes
-          )}
-        </div>
+        { server.status.conn_total > 0 && <>
+          <div className="throughput">
+            <span>Thoughput</span>
+            <FullThroughput bw={throughput} />
+          </div>
+          <div>
+            <span>Connections</span>
+            {format.numberWithCommas(server.status.conn_alive)} alive
+            <span className="split">/</span>
+            {format.numberWithCommas(server.status.conn_error)} ({errorConnRate}%)
+            error
+            <span className="split">/</span>
+            {format.numberWithCommas(server.status.conn_total)} total
+          </div>
+          <div className="close-history">
+            <span>Close history</span>
+            <ConnectionCloseHistory history={history} size={history_size} />
+          </div>
+          <div>
+            <span>Traffic</span>
+            Up {format.humanFileSize(server.traffic.tx_bytes)}
+            <span className="split">+</span>
+            Dn {format.humanFileSize(server.traffic.rx_bytes)}
+            <span className="split">=</span>
+            {format.humanFileSize(
+              server.traffic.rx_bytes + server.traffic.tx_bytes
+            )}
+          </div>
+          </>}
       </div>
     </Modal>
   );
